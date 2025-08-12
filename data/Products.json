@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1,
+    "slug": "barista-express",
+    "title": "the Barista Express",
+    "price": 798,
+    "shortDesc": "The best-selling, home espresso machine, with a built-in grinder",
+    "url": "/images/barista_express/barista_express_1.png"
+  },
+  {
+    "id": 2,
+    "slug": "bambino",
+    "title": "the Bambino",
+    "price": 498,
+    "shortDesc": "The best value for money, standalone espresso machine",
+    "url": "/images/bambino/bambino-1.png"
+  },
+  {
+    "id": 3,
+    "slug": "bambino-plus",
+    "title": "the Bambino Plus",
+    "price": 598,
+    "shortDesc": "Everything in the Bambino, plus automatic milk frothing",
+    "url": "/images/bambino_plus/bambino-plus-1.png"
+  },
+  {
+    "id": 4,
+    "slug": "oracle-touch",
+    "title": "the Oracle Touch",
+    "price": 3988,
+    "shortDesc": "Top of the line Dual Boiler performance with touch screen usability.",
+    "url": "/images/oracle_touch/oracle_touch_1.png"
+  }
+]
