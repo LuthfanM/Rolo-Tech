@@ -7,27 +7,45 @@ import ProductGallery, {
 import details from "@/data/productDetails.json";
 import { formatUSD, resolvePrice } from "@/helpers/commons";
 import { notFound, redirect } from "next/navigation";
-import ProductFooterAction from "@/components/panels/ProductPanelAction";
+import ProductPanelAction from "@/components/panels/ProductPanelAction";
 import { useCart } from "@/providers/CartContext";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
+import React from "react";
 
 type Detail = (typeof details)[number];
-type Props = { params: { id: string; slug: string } };
+type Props = { params: Promise<{ id: string; slug: string }> };
 
 export default function ProductDetailPage({ params }: Props) {
-  const galleryRef = useRef<ProductGalleryHandle>(null);
-  const { addItem, getSelectedVariant, setSelectedVariant } = useCart();
+  const { id, slug } = React.use(params);
 
-  const id = Number(params.id);
-  const data = (details as Detail[]).find((d) => d.id === id);
+  const {
+    addItem,
+    getSelectedVariant,
+    setSelectedVariant,
+    getSelectedImage,
+    setSelectedImage,
+  } = useCart();
+
+  const _id = Number(id);
+  const data = (details as Detail[]).find((d) => d.id === _id);
 
   if (!data) notFound();
 
-  if (data.slug && data.slug !== params.slug) {
+  if (data.slug && data.slug !== slug) {
     redirect(`/products/${data.id}/${data.slug}`);
   }
 
-  const selectedKey = getSelectedVariant(data.id);
+  const selectedVariantKey = getSelectedVariant(data.id);
+  const firstVariant = data.variants?.[0];
+  const initialIndex = useMemo(() => {
+    const idxFromContext = getSelectedImage(data.id);
+    if (typeof idxFromContext === "number") return idxFromContext;
+    if (selectedVariantKey) {
+      const v = data.variants?.find((x) => x.key === selectedVariantKey);
+      if (v) return v.imageIndex ?? 0;
+    }
+    return firstVariant?.imageIndex ?? 0;
+  }, [data, selectedVariantKey, getSelectedImage]);
 
   const { listPrice, price } = resolvePrice({
     listPrice: data.pricing?.listPrice ?? undefined,
@@ -37,28 +55,45 @@ export default function ProductDetailPage({ params }: Props) {
 
   useEffect(() => {
     if (!data.variants?.length) return;
-    if (selectedKey) return;
+    if (!selectedVariantKey) setSelectedVariant(data.id, firstVariant?.key);
 
-    const first = data.variants[0];
-    setSelectedVariant(data.id, first.key);
-    queueMicrotask(() => {
-      galleryRef.current?.scrollTo(first.imageIndex ?? 0);
-    });
-  }, [data.id, data.variants, selectedKey, setSelectedVariant]);
+    if (getSelectedImage(data.id) == null)
+      setSelectedImage(data.id, firstVariant?.imageIndex ?? 0);
+  }, [
+    data.id,
+    data.variants,
+    selectedVariantKey,
+    setSelectedVariant,
+    getSelectedImage,
+    setSelectedImage,
+    firstVariant,
+  ]);
+
+  const galleryRef = useRef<ProductGalleryHandle>(null);
+
+  const handleSlideChange = React.useCallback(
+    (index: number) => {
+      setSelectedImage(data.id, index);
+      const match = data.variants?.find((v) => v.imageIndex === index);
+      if (match) setSelectedVariant(data.id, match.key);
+    },
+    [data.id, data.variants, setSelectedImage, setSelectedVariant]
+  );
 
   return (
     <MainLayout
       footerContent={
-        <ProductFooterAction
+        <ProductPanelAction
           price={price}
-          onAddToCart={() => {
+          onClick={() => {
             const variantId = getSelectedVariant(data.id);
+            const imgIndex = getSelectedImage(data.id) ?? 0;
             addItem(
               {
                 id: data.id,
                 title: data.title,
                 price,
-                image: data.images?.[0],
+                image: data.images?.[imgIndex],
                 variantId,
               },
               1
@@ -68,11 +103,14 @@ export default function ProductDetailPage({ params }: Props) {
       }
     >
       <div className="grid grid-cols-1 gap-10 md:grid-cols-2">
-        <ProductGallery ref={galleryRef} images={data.images} />
+        <ProductGallery
+          ref={galleryRef}
+          images={data.images}
+          initialIndex={initialIndex}
+          onChange={handleSlideChange}
+        />
 
-        {/* Right: sticky details */}
         <aside className="md:sticky md:top-10 md:h-[calc(100dvh-80px)] overflow-auto pr-2">
-          {/* Breadcrumbs */}
           {data.breadcrumbs?.length ? (
             <nav className="text-sm text-slate-400">
               {data.breadcrumbs.join("  »  ")}
@@ -102,25 +140,26 @@ export default function ProductDetailPage({ params }: Props) {
               </span>
             )}
           </div>
-          {data.variants?.length ? (
+          {!!data.variants?.length && (
             <div className="mt-8 border-t border-slate-200 pt-6">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-medium text-slate-700">Colour</h3>
                 <div className="text-sm text-slate-400">
-                  {data.variants.find((v) => v.key === selectedKey)?.label ??
-                    data.variants[0].label}
+                  {data.variants.find(
+                    (v) => v.key === getSelectedVariant(data.id)
+                  )?.label ?? "—"}
                 </div>
               </div>
-
               <div className="mt-3 flex gap-3">
                 {data.variants.map((v) => {
-                  const active = v.key === selectedKey;
+                  const active = v.key === getSelectedVariant(data.id);
                   return (
                     <button
                       key={v.key}
                       onClick={() => {
-                        galleryRef.current?.scrollTo(v.imageIndex);
                         setSelectedVariant(data.id, v.key);
+                        setSelectedImage(data.id, v.imageIndex ?? 0);
+                        galleryRef.current?.scrollTo(v.imageIndex ?? 0);
                       }}
                       className={`h-8 w-8 rounded-md border transition
                         ${
@@ -136,7 +175,7 @@ export default function ProductDetailPage({ params }: Props) {
                 })}
               </div>
             </div>
-          ) : null}
+          )}
 
           <div className="mt-8 border-t border-slate-200 pt-6">
             <p className="whitespace-pre-line text-slate-700 leading-relaxed">
@@ -144,7 +183,6 @@ export default function ProductDetailPage({ params }: Props) {
             </p>
           </div>
 
-          {/* More Info */}
           {data.moreInfo?.items?.length ? (
             <div className="mt-8 border-t border-slate-200 pt-6">
               <h3 className="text-sm font-medium text-slate-700">

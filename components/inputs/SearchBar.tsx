@@ -62,11 +62,11 @@ export default function SearchBar({
   };
 
   return (
-    <div className={`flex-1 md:flex-none ${className}`}>
+    <div className={`w-[150px] md:w-[400px] ${className}`}>
       <div
         className="
           flex items-center
-          w-full h-11 rounded-xl
+          min-w-0 w-full h-11 rounded-xl
           md:w-[400px] md:h-[32px] md:rounded-[4px]
           border border-slate-300 bg-white
           px-3 gap-2

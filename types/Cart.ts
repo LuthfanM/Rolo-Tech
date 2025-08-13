@@ -18,6 +18,8 @@ type CartState = {
   hasItems: boolean;
   getSelectedVariant: (productId: number) => string | undefined;
   setSelectedVariant: (productId: number, variantId?: string) => void;
+  getSelectedImage: (productId: number) => number | undefined;
+  setSelectedImage: (productId: number, index: number) => void;
 };
 
 export type { CartState, CartItem };

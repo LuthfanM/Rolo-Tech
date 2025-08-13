@@ -7,7 +7,7 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   size?: "sm" | "md" | "lg" | "square";
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
-  badge?: number | string; // e.g. cart count
+  badge?: number | string;
 };
 
 function cx(...args: Array<string | false | null | undefined>) {

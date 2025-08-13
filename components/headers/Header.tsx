@@ -29,13 +29,13 @@ export function Header() {
 
   return (
     <header className="border-b border-slate-200">
-      <div className="mx-auto px-10 py-10">
+      <div className="md:mx-auto px-10 py-10">
         <div className="flex items-center gap-4">
-          <Link href={`/`}>
+          <Link href="/" className="shrink-0">
             <Logo />
           </Link>
 
-          <div className="ml-auto flex w-full justify-end items-center gap-3">
+          <div className="flex-1 min-w-0 flex items-end gap-3 justify-end">
             <SearchBar />
 
             <Button
@@ -45,7 +45,7 @@ export function Header() {
               title="Filters"
               className="
                 w-11 h-11 rounded-lg
-                md:w-[120px] md:h-[32px] md:px-[10px] md:rounded-[4px]
+                md:w-[120px] md:h-[32px] px-[10px] md:rounded-[4px]
                 gap-[10px] md:justify-start
               "
             >

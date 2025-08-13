@@ -6,30 +6,47 @@ import React, {
   useState,
   forwardRef,
   useImperativeHandle,
+  useRef,
 } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import type { EmblaCarouselType } from "embla-carousel";
 
-export type ProductGalleryHandle = {
-  scrollTo: (index: number) => void;
-};
+export type ProductGalleryHandle = { scrollTo: (index: number) => void };
 
 export default forwardRef(function ProductGallery(
-  { images }: { images: string[] },
+  {
+    images,
+    initialIndex = 0,
+    onChange,
+  }: {
+    images: string[];
+    initialIndex?: number;
+    onChange?: (index: number) => void;
+  },
   ref: React.Ref<ProductGalleryHandle>
 ) {
-  const [selected, setSelected] = useState(0);
-  const [mainRef, mainApi] = useEmblaCarousel({ loop: false, align: "start" });
+  const [selected, setSelected] = useState(initialIndex);
+  const [mainRef, mainApi] = useEmblaCarousel({
+    loop: false,
+    align: "start",
+    startIndex: initialIndex,
+  });
   const [thumbRef, thumbApi] = useEmblaCarousel({
     dragFree: true,
     containScroll: "keepSnaps",
   });
 
-  const onSelect = useCallback(
+  const onChangeRef = useRef<typeof onChange>(undefined);
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
+
+  const handleSelect = useCallback(
     (api?: EmblaCarouselType) => {
       if (!api) return;
       const i = api.selectedScrollSnap();
-      setSelected(i);
+      setSelected((prev) => (prev === i ? prev : i));
+      onChangeRef.current?.(i);
       thumbApi?.scrollTo(i);
     },
     [thumbApi]
@@ -37,9 +54,12 @@ export default forwardRef(function ProductGallery(
 
   useEffect(() => {
     if (!mainApi) return;
-    onSelect(mainApi);
-    mainApi.on("select", onSelect);
-  }, [mainApi, onSelect]);
+    handleSelect(mainApi);
+    mainApi.on("select", handleSelect);
+    return () => {
+      mainApi.off("select", handleSelect);
+    };
+  }, [mainApi, handleSelect]);
 
   useImperativeHandle(
     ref,
@@ -49,11 +69,8 @@ export default forwardRef(function ProductGallery(
     [mainApi]
   );
 
-  const scrollToThumb = (index: number) => mainApi?.scrollTo(index);
-
   return (
     <div className="space-y-4">
-      {/* Main */}
       <div
         className="overflow-hidden rounded-2xl border border-slate-300"
         ref={mainRef}
@@ -71,13 +88,12 @@ export default forwardRef(function ProductGallery(
         </div>
       </div>
 
-      {/* Thumbs */}
       <div className="overflow-hidden" ref={thumbRef}>
         <div className="flex gap-3">
           {images.map((src, i) => (
             <button
               key={i}
-              onClick={() => scrollToThumb(i)}
+              onClick={() => mainApi?.scrollTo(i)}
               className={`h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg border p-1 transition
                 ${
                   i === selected

@@ -5,16 +5,18 @@ import { useRouter } from "next/navigation";
 
 type Props = {
   price: number;
-  onAddToCart: () => void;
+  onClick: () => void;
   priceLabel?: string;
   buttonLabel?: string;
+  disabled?: boolean;
 };
 
 export default function ProductFooterAction({
   price,
-  onAddToCart,
+  onClick,
   priceLabel,
   buttonLabel,
+  disabled = false,
 }: Props) {
   const router = useRouter();
   return (
@@ -32,8 +34,15 @@ export default function ProductFooterAction({
           {formatUSD(price)}
         </div>
         <button
-          onClick={onAddToCart}
-          className="flex items-center gap-2 rounded-lg bg-darkGreen px-5 py-2 text-white hover:bg-emerald-800"
+          disabled={disabled}
+          aria-disabled={disabled}
+          onClick={onClick}
+          className={`flex items-center gap-2 rounded-lg px-5 py-2 text-white transition
+            ${
+              disabled
+                ? "bg-darkGreen/50 cursor-not-allowed"
+                : "bg-darkGreen hover:bg-emerald-800"
+            }`}
         >
           {buttonLabel || "Add to Cart"} <span>&rsaquo;</span>
         </button>

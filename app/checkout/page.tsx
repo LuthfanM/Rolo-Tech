@@ -1,7 +1,7 @@
 "use client";
 
 import MainLayout from "@/layouts/MainLayout";
-import ProductFooterAction from "@/components/panels/ProductPanelAction";
+import ProductPanelAction from "@/components/panels/ProductPanelAction";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useMemo } from "react";
@@ -15,11 +15,11 @@ type FormValues = {
 };
 
 const schema = Yup.object({
-  name: Yup.string().trim().min(2, "Too short").required("Required"),
+  name: Yup.string().trim().min(2, "Input is too short").required("Required"),
   email: Yup.string().trim().email("Invalid email").required("Required"),
-  street: Yup.string().trim().required("Required"),
+  street: Yup.string().trim().required("Input is required"),
   unit: Yup.string().trim().optional(),
-  postal: Yup.string().trim().min(3, "Too short").required("Required"),
+  postal: Yup.string().trim().min(3, "Input is too short").required("Required"),
 });
 
 const initialValues: FormValues = {
@@ -31,8 +31,7 @@ const initialValues: FormValues = {
 };
 
 export default function CheckoutPage() {
-  const total = useMemo(() => 2592, []); // TODO: compute from cart
-
+  const total = useMemo(() => 2592, []);
   return (
     <Formik<FormValues>
       initialValues={initialValues}
@@ -45,68 +44,68 @@ export default function CheckoutPage() {
     >
       {({ isValid, isSubmitting, submitForm }) => (
         <MainLayout
+          hideHeader
           footerContent={
-            <ProductFooterAction
+            <ProductPanelAction
               price={total}
-              isTotal
               buttonLabel="Make Payment"
               disabled={!isValid || isSubmitting}
-              onAddToCart={submitForm}
+              onClick={submitForm}
             />
           }
         >
-          <SectionTitle>Your Details</SectionTitle>
+          <section className="mx-auto w-full max-w-4xl align-middle justify-center py-[80px]">
+            <SectionTitle>Your Details</SectionTitle>
 
-          {/* Name / Email */}
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <FieldBlock
-              label="Your Name"
-              name="name"
-              placeholder="James Hoffman"
-            />
-            <FieldBlock
-              label="Email Address"
-              name="email"
-              type="email"
-              placeholder="james@gmail.com"
-            />
-          </div>
+            {/* Name / Email */}
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <FieldBlock
+                label="Your Name"
+                name="name"
+                placeholder="James Hoffman"
+              />
+              <FieldBlock
+                label="Email Address"
+                name="email"
+                type="email"
+                placeholder="james@gmail.com"
+              />
+            </div>
 
-          {/* Divider */}
-          <hr className="my-8 border-slate-200" />
+            {/* Divider */}
+            <hr className="my-8 border-slate-200" />
 
-          {/* Street */}
-          <FieldBlock
-            label="Street Address"
-            name="street"
-            placeholder="1 Sesame Street, Big Bird Building"
-          />
+            {/* Street */}
+            <FieldBlock
+              label="Street Address"
+              name="street"
+              placeholder="1 Sesame Street, Big Bird Building"
+            />
 
-          {/* Unit / Postal */}
-          <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
-            <FieldBlock
-              labelNode={
-                <div className="flex items-center justify-between">
-                  <span>Unit / House Number</span>
-                  <span className="text-sm text-slate-400">Optional</span>
-                </div>
-              }
-              name="unit"
-              placeholder="#12-34"
-            />
-            <FieldBlock
-              label="Postal Code"
-              name="postal"
-              placeholder="123456"
-            />
-          </div>
+            {/* Unit / Postal */}
+            <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+              <FieldBlock
+                labelNode={
+                  <div className="flex items-center justify-between">
+                    <span>Unit / House Number</span>
+                    <span className="text-sm text-slate-400">Optional</span>
+                  </div>
+                }
+                name="unit"
+                placeholder="#12-34"
+              />
+              <FieldBlock
+                label="Postal Code"
+                name="postal"
+                placeholder="123456"
+              />
+            </div>
+          </section>
         </MainLayout>
       )}
     </Formik>
   );
 }
-
-/* ---------- UI bits ---------- */
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
