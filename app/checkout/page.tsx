@@ -5,6 +5,10 @@ import ProductPanelAction from "@/components/panels/ProductPanelAction";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useMemo } from "react";
+import { saveOrderToSheet } from "@/actions/SaveOrder";
+import { useCart } from "@/providers/CartContext";
+import { createStripeCheckout } from "@/actions/CreateStripeCheckout";
+import { useRouter } from "next/navigation";
 
 type FormValues = {
   name: string;
@@ -31,14 +35,25 @@ const initialValues: FormValues = {
 };
 
 export default function CheckoutPage() {
-  const total = useMemo(() => 2592, []);
+  const { items, total } = useCart();
+  const router = useRouter();
+  const grandTotal = useMemo(() => total, [total]);
+
   return (
     <Formik<FormValues>
       initialValues={initialValues}
       validationSchema={schema}
-      onSubmit={async (values) => {
-        // TODO: write to Google Sheet, then Stripe checkout
-        console.log("Submit checkout", { values, total });
+      onSubmit={async (values, { setSubmitting }) => {
+        try {
+          // Google Sheet
+          await saveOrderToSheet(values, items, grandTotal);
+
+          // Stripe Checkout
+          const { url } = await createStripeCheckout(items);
+          router.push(url);
+        } finally {
+          setSubmitting(false);
+        }
       }}
       validateOnMount
     >
@@ -47,7 +62,7 @@ export default function CheckoutPage() {
           hideHeader
           footerContent={
             <ProductPanelAction
-              price={total}
+              price={grandTotal}
               buttonLabel="Make Payment"
               disabled={!isValid || isSubmitting}
               onClick={submitForm}

@@ -16,5 +16,17 @@ export function resolvePrice({
     const computed = Math.round(listPrice * (1 - discountPercent / 100));
     return { listPrice, price: computed };
   }
+
   return { listPrice: undefined, price: price ?? 0 };
+}
+
+export function variantLabel(key: string) {
+  switch (key) {
+    case "steel":
+      return "Stainless Steel";
+    case "black":
+      return "Truffle Black";
+    default:
+      return key;
+  }
 }

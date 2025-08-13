@@ -3,7 +3,7 @@
 import MainLayout from "@/layouts/MainLayout";
 import { useCart } from "@/providers/CartContext";
 import ProductPanelAction from "@/components/panels/ProductPanelAction";
-import { formatUSD } from "@/helpers/commons";
+import { formatUSD, variantLabel } from "@/helpers/commons";
 import { useRouter } from "next/navigation";
 
 export default function CartPage() {
@@ -64,7 +64,6 @@ export default function CartPage() {
                     {formatUSD(it.price)}
                   </div>
                 </div>
-                x
                 <div className="mt-1 text-slate-400 text-sm">
                   {it.qty} {it.qty > 1 ? "units" : "unit"}
                 </div>
