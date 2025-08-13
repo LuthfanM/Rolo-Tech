@@ -1,22 +1,60 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app). Integrated with Google sheets API and Stripe For Simple E-Commerce Flow.
+# Next.js E-Commerce Demo (Google Sheets + Stripe Integration)
 
-## Getting Started
+This project is a simple e-commerce flow built with [Next.js](https://nextjs.org), integrated with:  
+- **Google Sheets API** — to store order data.  
+- **Stripe Checkout** — to process payments.  
 
-You need to make sure .env file is configured properly. 
-cp .env.example .env.local
+Bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-You can use existing value or use your own configuration. 
-For existing value. I will leave that key alive until 20 august 2025
+---
 
-- GOOGLE_SHEETS_ID -> Refer to google sheets ID in url parameter. For example if your sheet is https://docs.google.com/spreadsheets/d/test222/edit?gid=0#gid=0 means your id is test222
-- GOOGLE_SERVICE_ACCOUNT_EMAIL -> Refer to google project in GCP
-- GOOGLE_SERVICE_ACCOUNT_KEY -> Account key in IAM - Service Account - Tab 'Keys'. Inside json file
-- GOOGLE_SHEETS_TAB=Sheet1 -> Name of tab in sheet. By default it is Sheet1
+## 🚀 Getting Started
 
-First, run the development server:
+### 1️⃣ Clone & Install
+```bash
+git clone <your-repo-url>
+cd <your-repo-name>
+npm install
+```
+
+---
+
+### 2️⃣ Environment Variables
+Copy the example `.env` file and adjust values as needed:
 
 ```bash
-npm install
+cp .env.example .env.local
+```
+
+You can either:  
+- Use the **existing values** provided (valid until **20 Aug 2025**) — good for quick testing.  
+- Use **your own credentials** — recommended for production.
+
+---
+
+#### **Google Sheets Configuration**
+- **`GOOGLE_SHEETS_ID`** → The sheet ID from the URL.  
+  Example:  
+  ```
+  https://docs.google.com/spreadsheets/d/test222/edit?gid=0#gid=0  
+  ID = test222
+  ```
+- **`GOOGLE_SERVICE_ACCOUNT_EMAIL`** → From your Google Cloud project (IAM → Service Accounts).  
+- **`GOOGLE_SERVICE_ACCOUNT_KEY`** → The `private_key` from the service account JSON (keep `\n` escapes intact).  
+- **`GOOGLE_SHEETS_TAB`** → The name of the sheet tab (default: `Sheet1`).  
+
+---
+
+#### **Stripe Configuration**
+- **`STRIPE_SECRET_KEY`** → Get from your [Stripe Dashboard](https://dashboard.stripe.com/apikeys).  
+- **`STRIPE_SUCCESS_URL`** → Redirect after successful payment (e.g., `http://localhost:3000/success`).  
+- **`STRIPE_CANCEL_URL`** → Redirect after payment is cancelled (e.g., `http://localhost:3000/cart`).  
+- **`STRIPE_CURRENCY`** → Payment currency (default: `usd`).  
+
+---
+
+### 3️⃣ Run the Development Server
+```bash
 npm run dev
 # or
 yarn dev
@@ -25,6 +63,28 @@ pnpm dev
 # or
 bun dev
 ```
+Then open **[http://localhost:3000](http://localhost:3000)** in your browser.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
+## 📦 Features
+- **Cart → Checkout → Payment** flow.
+- Order details stored in **Google Sheets**.
+- Payment handled via **Stripe Checkout**.
+- Environment-based configuration for easy deployment.
+
+---
+
+## 🧪 Testing Stripe Payments
+In **test mode**, you can use the following test card:  
+```
+Card Number: 4242 4242 4242 4242
+Expiry: Any future date
+CVC: Any 3 digits
+ZIP: Any
+```
+
+---
+
+## 📄 License
+This project is licensed under the MIT License.
